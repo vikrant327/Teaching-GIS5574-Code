@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=7, IE=9, IE=10">
+    <!--The viewport meta tag is used to improve the presentation and behavior of the samples
+      on iOS devices-->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Task</title>
+
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/esri/css/esri.css">
+    <link rel="stylesheet" href="css/layout.css"/>
+
+    <!-- Reference Jquery -->
+    <script src="Jquery/jquery-1.11.3.min.js"></script>
+
+
+     <!-- Reference ArcGIS JavaScript API CDN -->
+    <script src="http://js.arcgis.com/3.14/"></script>
+
+    <script>
+
+      var map;
+      var dynamicLayer;
+      var dynamicLayerUrl = "https://dev.gis.wsbeng.com/arcgis/rest/services/WSB/ESRI_Marketplace_Dynamic/MapServer";
+	  var drawTool;
+	  var legend,scalebar;
+	  var mapClickEvent;
+
+      require(["dojo/_base/event","dojo/dom","dojo/dom-attr","dojo/on","esri/toolbars/draw","esri/map","esri/layers/ArcGISTiledMapServiceLayer",
+	          "esri/layers/ArcGISDynamicMapServiceLayer","esri/geometry","dojo/parser",
+              "esri/geometry/webMercatorUtils","esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol",
+              "esri/symbols/SimpleFillSymbol","esri/graphic", "dojo/_base/Color","esri/dijit/Legend","esri/dijit/Scalebar","dijit/popup","esri/tasks/IdentifyTask","esri/tasks/IdentifyParameters",
+			  "esri/InfoTemplate","dojo/_base/connect","dojo/_base/event","dijit/layout/BorderContainer",
+			  "dijit/layout/ContentPane","dijit/layout/TabContainer","dojo/domReady!","esri/IdentityManager"],
+	          function(event,dom,domAttr,on,Draw,Map,Tiled,Dynamic,Geometry, parser, webMercatorUtils,SimpleMarkerSymbol,SimpleLineSymbol,SimpleFillSymbol,Graphic,Color
+				  ,Legend,Scalebar,Popup,IdentifyTask,IdentifyParameters,InfoTemplate,connect,event) {
+
+				parser.parse();
+
+	            var initialExtent = new Geometry.Extent({"xmin":-9817645.961319644,"ymin":5122788.676561926,"xmax":-9808263.31609765,"ymax":5130556.589561395,"spatialReference":{"wkid":102100}});
+
+				map = new esri.Map("map", {extent: initialExtent});
+				
+				// check the event , when map loads. Triggered when first layer on the map is loaded.
+				map.on("load", function (){
+					// Hook up jQuery
+					$(document).ready(initializeJquery);
+				});
+
+				var basemap = new Tiled("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",{id:"Basemap"});     // initializing the basemap with topographic tiled map
+
+				dynamicLayer = new Dynamic(dynamicLayerUrl,{id:"OverlayMap"});   // initilizing the dynamic map with dynamicLayerUrl Map Service
+
+				dynamicLayer.setVisibleLayers([-1]);   // don't want any layer to be visible in the begining
+
+				map.addLayer(basemap);    // adding basemap layer to the map area
+
+                map.addLayer(dynamicLayer);   // adding dynamic layer to map area
+                
+				//initialize legend
+				legend = new Legend({
+				            map:map,
+				            layerInfos:[{layer:dynamicLayer,title:"Dynamic Layer"}],
+				            arrangement:Legend.ALIGN_LEFT,
+							respectCurrentMapScale:false
+				         },"legend");
+
+				// start legend
+				legend.startup();
+
+				// initialize scalebar
+				scalebar = new Scalebar({
+				    map: map,
+					scalebarUnit: "dual",
+				    attachTo: "top-center"
+				  });
+
+                mapClickEvent = map.on("click",doIdentify);   // start identify when map click
+
+                map.on("mouse-move",mouseMove);
+
+				
+				drawTool = new Draw(map);                   // initialize draw toolbar
+                drawTool.on("draw-end", addGraphicToMap);        // specify what happens or which function to execute when drawing ends
+
+                
+				// function to handle identify task after map click
+				function doIdentify(evt) {
+                        console.log(evt);
+			            identifyTask = new IdentifyTask(dynamicLayerUrl);
+
+			            identifyParams = new IdentifyParameters();
+			            identifyParams.tolerance = 3;
+			            identifyParams.returnGeometry = true;
+			            identifyParams.layerIds = dynamicLayer.visibleLayers;
+			            identifyParams.layerOption = IdentifyParameters.LAYER_OPTION_ALL;
+			            identifyParams.width  = map.width;
+			            identifyParams.height = map.height;
+				        identifyParams.geometry = evt.mapPoint;
+				        identifyParams.mapExtent = map.extent;
+
+				        var deferred = identifyTask.execute(identifyParams);
+
+				        deferred.addCallback(function(response) {
+				          // response is an array of identify result objects
+				          // Lets return an array of features.
+				          return dojo.map(response, function(result) {
+				            var feature = result.feature;
+				            var template = new InfoTemplate(result.layerName, "${*}");
+				            feature.setInfoTemplate(template);
+				            return feature;
+				          });
+				        });
+
+				        map.infoWindow.setFeatures([ deferred ]);
+				        map.infoWindow.show(evt.mapPoint);
+				}
+
+
+                // Method when draw ends, create graphic and add to map
+                function addGraphicToMap(evt){
+
+                    // check the geomtry type and create symbol accordingly
+                    if ( evt.geometry.type === "point") {
+                        var symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 20,
+                                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,new Color([0,255,0]), 1),
+                                            new Color([255,0,0,0.25]));
+
+                    } else if (evt.geometry.type === "polyline") {
+                        var symbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASH,new Color([255,0,0]), 3);
+                    }
+                    else {
+                        var symbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                                          new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,new Color([255,0,0]), 2),
+                                          new Color([255,255,0,0.25]));
+                    }
+
+                    // create a graphic with geometry and symbol;
+                    var mapGraphic = new Graphic(evt.geometry, symbol);
+
+                    // add graphic to map
+                    map.graphics.add(mapGraphic);
+
+                    drawTool.deactivate();     // deactivate the draw tool
+                    map.enableMapNavigation(); // enable navigation again
+                    mapClickEvent = map.on("click",doIdentify);  // enable back map click identify event
+                }
+
+                // call function when mouse is moving to update current coordinates display
+				function mouseMove(evt){
+					 var value = webMercatorUtils.xyToLngLat(evt.mapPoint.x, evt.mapPoint.y, true);
+					 $("#cursorLocation").html("X : " + value[0].toFixed(4) + "  Y : " + value[1].toFixed(4));
+				}
+ 
+				// Initialize Jquery Methods and Events
+				function initializeJquery(){
+					// Check if any check of Class OverlayMap is clicked. 
+					$(".OverlayMap").on("click",function(e){
+						var currentVisibleLayers = dynamicLayer.visibleLayers;      // get the current visible layers of dynamic service into an javascript array
+						var layerId = $(this).data("layer-id");                     // get the layer-id attribute of checkbox
+						
+						if($(this).prop("checked")){                                // check if checkbox is checked or unched
+							currentVisibleLayers.push(layerId);                     // add the layer-id value to current visible layer array
+						}else{
+							var index = currentVisibleLayers.indexOf(layerId);      // get the index of layer-id in the current visible layer array 
+							currentVisibleLayers.splice(index,1);                   // remove the layer-id from current visible layer array
+						}
+						dynamicLayer.setVisibleLayers(currentVisibleLayers);        // set the dynamic service visible layers to the new updated array.
+					    legend.refresh();                                           // Refresh the legend widget everty time layer gets toggeled
+					});
+					
+					$(".draw").on("click",function(){
+					    drawTool = new Draw(map);                   // initialize draw toolbar
+                        drawTool.on("draw-end", addGraphicToMap);        // specify what happens when draw ends
+					    map.disableMapNavigation();                 // disable navigation control, so that draw movement doesn't conflict with map navigation
+					    var drawType = $(this).data("draw-type");   // get the draw type , the html 5 attribute that defines draw type for button
+						
+						// check the draw type and activet corresponding draw tool.
+						if(drawType == "Point"){
+						   drawTool.activate(Draw.POINT);
+						   mapClickEvent.remove();     // disable map click identify event
+						}else if(drawType == "Polyline"){
+						   drawTool.activate(Draw.POLYLINE);
+						   mapClickEvent.remove();     // disable map click identify event
+						}else if(drawType == "Polygon"){
+						   drawTool.activate(Draw.POLYGON);
+						   mapClickEvent.remove();     // disable map click identify event
+						}else {
+						   map.graphics.clear();
+						   mapClickEvent = map.on("click",doIdentify);      // enable back map click identify event
+						}
+						
+					});
+				}
+				
+
+	       });
+
+           
+    </script>
+  </head>
+
+  <body class="claro">
+    <div id="mainWindow"
+         data-dojo-type="dijit.layout.BorderContainer"
+         data-dojo-props="design:'headline', gutters:false"
+         style="width:100%; height:100%;">
+
+      <div id="header"
+           data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'top'">
+
+        Web Develoment & Interactive Cartography
+       <div id="subheader">ESRI ArcGIS for JavaScript API</div>
+
+      </div>
+      <div data-dojo-type="dijit.layout.ContentPane" id="leftPane" data-dojo-props="region:'left'">
+        <div data-dojo-type="dijit.layout.TabContainer">
+
+          <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Map Layers', selected:true">
+            <div id="layers">
+                <label>Property Labels</label>
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="1">Address Labels
+				<br>
+				<label>Sanitary Sewer</label>
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="3">Sewer System Valves
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="4">Sewer Network Structures
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="5">Sewer Manholes
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="6">Sewer Pressurized Mains
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="7">Sewer Gravity Mains
+				<br>
+				<label>Stormwater</label>
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="9">Storm Manholes
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="10">Storm Inlets
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="11">Storm Discharge Points
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="12">Storm Fittings
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="13">Storm Gravity Mains
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="14">Storm Culverts
+				<br>
+				<label>Water</label>
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="16">Water Hydrants
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="17">Water System Valves
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="18">Water Network Structures
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="19">Water Fittings
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="20">Water Curb Stop Valves
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="21">Water Service Connections
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="22">Water Mains
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="23">Water Lateral Lines
+				<br>
+				<input type="checkbox" class="OverlayMap" data-layer-id="24">Trails and Paths
+				<br>
+				<input type="checkbox" class="OverlayMap" data-layer-id="25">Two Foot Contours
+				<br>
+				<label>Land Use</label>
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="27">Current Land Use
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="28">Proposed Land Use
+				<br>
+				<input type="checkbox" class="OverlayMap" data-layer-id="29">Zoning District
+				<br>
+				<input type="checkbox" class="OverlayMap" data-layer-id="30">FEMA Flood Zones
+				<br>
+				<input type="checkbox" class="OverlayMap" data-layer-id="31">Parcels
+				<br>
+            </div>
+          </div>
+		  
+		  <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Legend'" >
+			  <div id="legend"></div>
+          </div>
+
+          <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Tab 3'" >
+            Results
+          </div>
+
+        </div>
+      </div>
+
+      <div id="map" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'center'">
+          <label id="cursorLocation"> </label>
+      </div>
+
+	  <div id="draw">
+            <button id="Point" class="draw first" data-draw-type="Point" >Point</button>
+            <button id="Polyline" class="draw" data-draw-type="Polyline"  >Polyline</button>
+            <button id="Polygon" class="draw" data-draw-type="Polygon" >Polygon</button>
+            <button id="clear" class="draw last"  data-draw-type="Clear"  >Clear</button>
+      </div>
+
+      <div id="footer" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'bottom'">
+        Vikrant Krishna
+      </div>
+
+    </div>
+  </body>
+
+</html>

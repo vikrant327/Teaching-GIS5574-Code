@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=7, IE=9, IE=10">
+    <!--The viewport meta tag is used to improve the presentation and behavior of the samples
+      on iOS devices-->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Layouts</title>
+
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/esri/css/esri.css">
+
+    <link rel="stylesheet" href="css/layout.css"/>
+	
+	<link rel="stylesheet" href="Jquery/style.css"/>
+    <script src="Jquery/jquery-1.11.3.min.js"></script>
+	<script src="Jquery/jquery-ui.js"></script>
+
+	<!-- Reference ArcGIS JavaScript API CDN -->
+    <script src="http://js.arcgis.com/3.14/"></script>
+	
+	<script>
+	    require(["dojo/parser",
+        "esri/geometry/webMercatorUtils","dijit/layout/BorderContainer", "dijit/layout/ContentPane",
+        "dijit/layout/TabContainer", "dojo/domReady!"],
+        function( parser) {
+
+            parser.parse();
+			
+			$(document).ready(initializeJquery);
+			
+			function initializeJquery(){
+
+					$(".draw").on("click",function(){
+					    
+						var drawType = $(this).data("draw-type");
+						// check the draw type and activet corresponding draw tool.
+						if(drawType == "Point"){
+						  alert("Point");    
+						}else if(drawType == "Polyline"){
+						   alert("Polyline"); 
+						}else if(drawType == "Polygon"){
+						   alert("Polygon"); 
+						}else {
+						  alert("Cear"); 
+						}
+						
+					});
+					
+					// Button Click
+					$("#button1").on("click",function(){
+					   alert("Button 1 Clicked, Input 1 value is " + $("#value1").val())
+					});
+					
+			}
+			
+			
+		});
+	 
+	</script>
+	
+	
+    
+  </head>
+
+  <body class="claro">
+    <div id="mainWindow"
+         data-dojo-type="dijit.layout.BorderContainer"
+         data-dojo-props="design:'headline', gutters:false"
+         style="width:100%; height:100%;">
+
+      <div id="header" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'top'">
+
+        Web Develoment
+       <div id="subheader">ESRI ArcGIS for JavaScript API</div>
+
+      </div>
+      <div data-dojo-type="dijit.layout.ContentPane" id="leftPane" data-dojo-props="region:'left'">
+        <div data-dojo-type="dijit.layout.TabContainer">
+
+          <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Map Layers', selected:true">
+            <div id="layers" style="overflow-y:auto">
+				<label>Property Labels</label>
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="1">Address Labels
+				<br>
+				<label>Sanitary Sewer</label>
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="3">Sewer System Valves
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="4">Sewer Network Structures
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="5">Sewer Manholes
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="6">Sewer Pressurized Mains
+				<br>
+				<input type="checkbox" style="margin-left:20px" class="OverlayMap" data-layer-id="7">Sewer Gravity Mains
+				<br>
+            </div>
+          </div>
+
+          <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Tools'" >
+            <fieldset>
+                 <legend>Section Title</legend>
+                 Find All:
+                 <select id="selectLayers">
+				    <option value="31">Option 1</option>
+                    <option value="16">Option 2</option>
+					<option value="17">Option 3</option>
+                    <option value="20">Option 4</option>
+                    <option value="22">Option 5</option>
+                 </select></br>
+                 <input type="text" size="20" value="Default Value" id="input_id">&nbsp;&nbsp;
+                 
+                 <button id="ButtonID" >Button</button>
+
+            </fieldset>
+			<fieldset>
+				<legend>Search 1</legend>
+				<div id="searchDiv">
+					<label for="tags">Search Title: </label><input id="value1" value=""   />
+					<button id="button1">Search</button>
+				</div>
+            </fieldset>
+			<fieldset>
+				<legend>Search 2</legend>
+				<div id="searchDiv">
+					<label for="tags">Search Title: </label><input id="value2" value=""   />
+					<button id="button2">Search</button>
+				</div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+
+      <div id="map" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'center'">
+          <label id="cursorLocation"> </label>
+      </div>
+	  
+	  <div id="draw">
+            <button id="Point" class="draw first" data-draw-type="Point" >Point</button>
+            <button id="Polyline" class="draw" data-draw-type="Polyline"  >Polyline</button>
+            <button id="Polygon" class="draw" data-draw-type="Polygon" >Polygon</button>
+            <button id="clear" class="draw last"  data-draw-type="Clear"  >Clear</button>
+      </div>
+
+      <div id="footer" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'bottom'">
+        Vikrant Krishna <a href="http://www.wsbeng.com" >(WSB & Associates) </a>
+      </div>
+
+    </div>
+  </body>
+
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=7, IE=9, IE=10">
+    <!--The viewport meta tag is used to improve the presentation and behavior of the samples
+      on iOS devices-->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Basic Map and Layers</title>
+
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/esri/css/esri.css">
+
+    <link rel="stylesheet" href="css/layout.css"/>
+
+	<!-- Reference ArcGIS JavaScript API CDN -->
+    <script src="http://js.arcgis.com/3.14/"></script>
+	
+	<!-- Reference Jquery -->
+    <script src="Jquery/jquery-1.11.3.min.js"></script>
+	
+    <script>
+        var map;
+      require([
+        "esri/map", "esri/InfoTemplate", "esri/layers/FeatureLayer",
+        "dojo/parser","esri/symbols/SimpleMarkerSymbol" ,"dojo/_base/Color", "esri/renderers/SimpleRenderer","esri/geometry/webMercatorUtils","dijit/layout/BorderContainer","dijit/layout/ContentPane",
+		"dijit/layout/TabContainer", "esri/IdentityManager","dojo/domReady!"
+      ], function(
+        Map, InfoTemplate, FeatureLayer, 
+        parser,SimpleMarkerSymbol, Color, SimpleRenderer,webMercatorUtils
+      ) {
+        parser.parse();
+        map = new Map("map", { 
+          basemap: "national-geographic",
+          center: [-88.16, 41.75],
+          zoom: 13
+        });
+       
+        map.on("load", initOperationalLayer);
+
+        function initOperationalLayer() {
+          var infoTemplate = new InfoTemplate("${state_name}", "Population (2000):  ${pop2000:NumberFormat}");
+          var featureLayer = new FeatureLayer("http://sampleserver6.arcgisonline.com/arcgis/rest/services/ServiceRequest/MapServer/0",{
+            mode: FeatureLayer.MODE_ONDEMAND,
+            outFields: ["*"],
+            infoTemplate: infoTemplate
+          });
+		  
+		  map.on("mouse-move",mouseMove);
+		  
+		  // call function when mouse is moving to update current coordinates display
+		  function mouseMove(evt){
+			 var value = webMercatorUtils.xyToLngLat(evt.mapPoint.x, evt.mapPoint.y, true);
+			 $("#cursorLocation").html("X : " + value[0].toFixed(4) + "  Y : " + value[1].toFixed(4));
+		  }
+		 
+		  
+		  var symbol = new SimpleMarkerSymbol().setColor(new Color([255,255,0,0.5]));
+          var renderer = new SimpleRenderer(symbol);
+          featureLayer.setRenderer(renderer);
+		  
+		  //  feature layer click event
+		  featureLayer.on("click",function(evt){
+		     var symbol2 = new SimpleMarkerSymbol().setColor(new Color([0,255,255,0.8]));
+		     evt.graphic.setSymbol(symbol2);
+		  });
+		  
+          map.addLayer(featureLayer);
+          map.infoWindow.resize(155,75);
+		  
+		  $("#id-1").on("click",function(){
+		        if($(this).prop("checked")){                                
+					featureLayer.show();                     // show layer
+				}else{
+					featureLayer.hide();                     // hide layer
+				}
+		  });
+		  
+        }
+      });
+     
+
+    </script>
+  </head>
+
+  <body class="claro">
+    <div id="mainWindow"
+         data-dojo-type="dijit.layout.BorderContainer"
+         data-dojo-props="design:'headline', gutters:false"
+         style="width:100%; height:100%;">
+
+      <div id="header" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'top'">
+
+        Web Develoment
+       <div id="subheader">ESRI ArcGIS for JavaScript API</div>
+
+      </div>
+      <div data-dojo-type="dijit.layout.ContentPane" id="leftPane" data-dojo-props="region:'left'">
+        <div data-dojo-type="dijit.layout.TabContainer">
+
+          <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Map Layers', selected:true">
+            <div id="layers" style="overflow-y:auto">
+				
+				<br>
+				<input type="checkbox" id="id-1" style="margin-left:20px" class="OverlayMap" checked=true data-layer-id="1">Feature Layer
+				<br>		
+            </div>
+          </div>
+
+          <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Tab 2'" >
+            Content for the second tab
+          </div>
+
+        </div>
+      </div>
+
+      <div id="map" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'center'">
+          <label id="cursorLocation"> </label>
+      </div>
+
+      <div id="footer" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'bottom'">
+        Vikrant Krishna <a href="http://www.wsbeng.com" >(WSB & Associates) </a>
+      </div>
+
+    </div>
+  </body>
+
+</html>

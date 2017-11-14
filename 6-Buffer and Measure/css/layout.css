@@ -1,0 +1,145 @@
+/* HTML body size and Position */
+html,
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+}
+body {
+    background-color: #555;
+    overflow: hidden;
+    font-family: "Trebuchet MS";
+}
+
+/* Header section style */
+#header {
+    background-image: url(../images/banner.jpg);
+    background-repeat: repeat-x;
+    color: white;
+    font-size: 18pt;
+    text-align: left;
+    font-weight: bold;
+    height: 70px;
+}
+
+/* Subheader section style */
+#subheader {
+    font-size: small;
+    color: white;
+    padding-left: 20px;
+}
+
+/* Right Panel */
+#rightPane {
+    background-color: white;
+    color: #3f3f3f;
+    border: solid 2px #224a54;
+    width: 20%;
+}
+
+/* Left  Panel */
+#leftPane {
+    margin: 5px;
+    color: #3f3f3f;
+    width: 20%;
+}
+
+/* Map section */
+#map {
+    -moz-border-radius: 4px;
+}
+
+/* Footer section style */
+#footer {
+    border: solid 2px #224a54;
+    background-color: #888;
+    color: #3f3f3f;
+    font-size: 10pt;
+    text-align: center;
+    height: 40px;
+}
+
+/* Class properties for inner section of tabs */
+.dijitTabInnerDiv {
+    background-color: #ecefe4;
+}
+/* Style for tabs in left panel */
+#tabs {
+    padding: 5px;
+}
+
+/* current location display text  */
+#cursorLocation {
+    position: absolute;
+    bottom: 20px;
+    left: 50px;
+    color: #000;
+    z-index: 999;
+}
+
+/* draw buttons size and position */
+#draw {
+    top: 90px;
+    color: #444;
+    height: auto;
+    font-family: arial;
+    right: 20px;
+    margin: 5px;
+    padding: 0px;
+    position: absolute;
+    width: 300px;
+    z-index: 40;
+    border: 0px;
+    border-radius: 4px;
+    background-color: none;
+    height: 3em;
+}
+
+/* styling button class. So that buttons looks the same */
+.draw {
+    background-color: #5e7f2b;
+    text-decoration: none;
+    color: #ffffff;
+    line-height: 3em;
+    display: inline-block;
+    float: left;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-family: Arial, San-Serif;
+    font-size: 12px;
+    font-weight: bold;
+    -moz-transition: 1s linear;
+    -ms-transition: 1s linear;
+    -o-transition: 1s linear;
+    -webkit-transition: 1s linear;
+    transition: 1s linear;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-bottom-width: 3px;
+    cursor: pointer;
+}
+/* change background color slighlty when button hover */
+.draw:hover {
+    background-color: #5e702b;
+}
+
+/* style left button to have left rounded corners */
+button.first {
+    -webkit-border-top-left-radius: 16px;
+    -webkit-border-bottom-left-radius: 16px;
+    -moz-border-radius-topleft: 16px;
+    -moz-border-radius-bottomleft: 16px;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-left: none;
+}
+
+/* style right button to have right rounded corners */
+button.last {
+    -webkit-border-top-right-radius: 16px;
+    -webkit-border-bottom-right-radius: 16px;
+    -moz-border-radius-topright: 16px;
+    -moz-border-radius-bottomright: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-right: none;
+}

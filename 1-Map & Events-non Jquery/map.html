@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=7, IE=9, IE=10">
+    <!--The viewport meta tag is used to improve the presentation and behavior of the samples
+      on iOS devices-->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title></title>
+
+   
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/esri/css/esri.css">
+
+    <link rel="stylesheet" href="css/layout.css"/>
+
+	<!-- Reference ArcGIS JavaScript API CDN -->
+    <script src="http://js.arcgis.com/3.14/"></script>
+   
+    <script>
+
+      var map;
+      var dynamicLayer;
+      var dynamicLayerUrl = "https://dev.gis.wsbeng.com/arcgis/rest/services/WSB/ESRI_Marketplace_Dynamic/MapServer/";
+
+      require(["esri/map", "esri/layers/ArcGISTiledMapServiceLayer","esri/layers/ArcGISDynamicMapServiceLayer","esri/geometry","dojo/parser",
+      "esri/geometry/webMercatorUtils","dijit/layout/BorderContainer", "dijit/layout/ContentPane",
+      "dijit/layout/TabContainer", "dojo/domReady!","esri/IdentityManager"],
+          function(Map, Tiled, Dynamic,Geometry, parser, webMercatorUtils) {
+
+            parser.parse();
+
+            var initialExtent = new Geometry.Extent({"xmin":-9817645.961319644,"ymin":5122788.676561926,"xmax":-9808263.31609765,"ymax":5130556.589561395,"spatialReference":{"wkid":102100}});
+
+
+            map = new esri.Map("map", {extent: initialExtent});
+
+            //map = new esri.Map("map", {basemap: "streets",center: [-88.147219, 41.780608],zoom: 16});
+
+            var basemap = new Tiled("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",{id:"Basemap"});     // initializing the basemap with topographic tiled map
+
+            dynamicLayer = new Dynamic(dynamicLayerUrl,{id:"OverlayMap"});   // initilizing the dynamic map with dynamicLayerUrl Map Service
+
+            dynamicLayer.setVisibleLayers([-1]);   // don't want any layer to be visible in the begining
+
+            map.addLayer(basemap);    // adding basemap layer to the map area
+
+            map.addLayer(dynamicLayer);   // adding dynamic layer to map area
+
+            //map.on("mouse-move",mouseMove);  // declaire mouse move event
+
+            // call function when mouse is moving to update current coordinates display
+            function mouseMove(evt){
+                 var value = webMercatorUtils.xyToLngLat(evt.mapPoint.x, evt.mapPoint.y, true);
+                 dojo.byId("cursorLocation").innerHTML = "X : " + value[0].toFixed(4) + "  Y : " + value[1].toFixed(4);
+            }
+
+          }
+        );
+
+
+          function changeLayerVisibility() {
+                var inputs = dojo.query(".sample_list"), input;
+                //in this application layer 2 is always on.
+
+                var visible = [-1];                            //initialize an array which will store the visible layer id's of dynamic map
+
+                // loop though all the input's in class
+                for (var i=0, il=inputs.length; i<il; i++) {
+                    if (inputs[i].checked) {          // check if current input is checked or unchecked
+                      visible.push(inputs[i].id);    // if check the add the id of input to the visible layer
+                    }
+                }
+
+                dynamicLayer.setVisibleLayers(visible);   // finally assign the visible layers array to dynamicLayer visible layers
+
+          }
+
+    </script>
+  </head>
+
+  <body class="claro">
+    <div id="mainWindow"
+         data-dojo-type="dijit.layout.BorderContainer"
+         data-dojo-props="design:'headline', gutters:false"
+         style="width:100%; height:100%;">
+
+      <div id="header" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'top'">
+
+        Web Develoment
+       <div id="subheader">ESRI ArcGIS for JavaScript API</div>
+
+      </div>
+      <div data-dojo-type="dijit.layout.ContentPane" id="leftPane" data-dojo-props="region:'left'">
+        <div data-dojo-type="dijit.layout.TabContainer">
+
+          <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Map Layers', selected:true">
+            <div id="layers">
+                <input type='checkbox' class='sample_list' id='0' onclick='changeLayerVisibility();'/>Address Labels<br />
+				<input type='checkbox' class='sample_list' id='24' onclick='changeLayerVisibility();'/>Trails and Paths<br />
+				<input type='checkbox' class='sample_list' id='25' onclick='changeLayerVisibility();'/>Two Foot Contours<br />
+		        <input type='checkbox' class='sample_list' id='29' onclick='changeLayerVisibility();'/>Zoning District<br />
+				<input type='checkbox' class='sample_list' id='30' onclick='changeLayerVisibility();'/>FEMA Flood Zones<br />
+		        <input type='checkbox' class='sample_list' id='31' onclick='changeLayerVisibility();'/>Parcels<br />
+            </div>
+          </div>
+
+          <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Tab 2'" >
+            Content for the second tab
+          </div>
+
+        </div>
+      </div>
+
+      <div id="map" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'center'">
+          <label id="cursorLocation"> </label>
+      </div>
+
+      <div id="footer" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'bottom'">
+        Vikrant Krishna <a href="http://www.wsbeng.com" >(WSB & Associates) </a>
+      </div>
+
+    </div>
+  </body>
+
+</html>
