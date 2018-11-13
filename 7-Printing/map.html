@@ -36,10 +36,10 @@
 	          "esri/layers/ArcGISDynamicMapServiceLayer","esri/geometry","dojo/parser",
               "esri/geometry/webMercatorUtils","esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol",
               "esri/symbols/SimpleFillSymbol","esri/graphic", "dojo/_base/Color","esri/dijit/Legend","esri/dijit/Scalebar","dijit/popup","esri/tasks/IdentifyTask","esri/tasks/IdentifyParameters",
-			  "esri/InfoTemplate","esri/tasks/GeometryService","esri/tasks/BufferParameters","esri/tasks/query", "esri/tasks/QueryTask","esri/tasks/PrintTask","dojo/_base/connect","dojo/_base/event","dijit/layout/BorderContainer",
+			  "esri/InfoTemplate","esri/dijit/Measurement","esri/tasks/GeometryService","esri/tasks/BufferParameters","esri/tasks/query", "esri/tasks/QueryTask","esri/tasks/PrintTask","dojo/_base/connect","dojo/_base/event","dijit/layout/BorderContainer",
 			  "dijit/layout/ContentPane","dijit/layout/TabContainer","dojo/domReady!","esri/IdentityManager"],
 	          function(event,dom,domAttr,on,Draw,Map,Tiled,Dynamic,Geometry, parser, webMercatorUtils,SimpleMarkerSymbol,SimpleLineSymbol,SimpleFillSymbol,Graphic,Color
-				  ,Legend,Scalebar,Popup,IdentifyTask,IdentifyParameters,InfoTemplate,GeometryService, BufferParameters,Query, QueryTask,PrintTask,connect,event) {
+				  ,Legend,Scalebar,Popup,IdentifyTask,IdentifyParameters,InfoTemplate,Measurement,GeometryService, BufferParameters,Query, QueryTask,PrintTask,connect,event) {
 
 				parser.parse();
 				
@@ -88,6 +88,25 @@
                 mapClickEvent = map.on("click",doIdentify);   // start identify when map click
                 map.on("mouse-move",mouseMove);
 				
+				
+				// initialize and start measure dijit
+                var measurement = new Measurement({
+                   map: map
+                }, dojo.byId('measureDiv'));
+                measurement.startup();
+
+                // when area button click, disbale map identify button
+				measurement.on("tool-change",function(){
+				    console.log(this.getTool());
+					if(typeof this.getTool() == "undefined"){
+					    mapClickEvent = map.on("click",doIdentify);   // start identify when map click
+						this.clearResult();
+                        
+					}else{
+					    mapClickEvent.remove();
+						this.clearResult();
+					}
+				});
 
 				
 				drawTool = new Draw(map);                   // initialize draw toolbar
@@ -457,7 +476,7 @@
 
                 </fieldset><br/><br/>
                 <fieldset>
-                   <legend></legend>
+                   <legend>Measure</legend>
                  <div id="measureDiv"></div>
                 </fieldset>
           </div>

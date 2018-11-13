@@ -60,8 +60,8 @@
 
             // call function when mouse is moving to update current coordinates display
             function mouseMove(evt){
-                 var value = webMercatorUtils.xyToLngLat(evt.mapPoint.x, evt.mapPoint.y, true);
-                 $("#cursorLocation").html("X : " + value[0].toFixed(4) + "  Y : " + value[1].toFixed(4));
+                 var normalizedVal = esri.geometry.xyToLngLat(evt.x, evt.y);
+                console.log(normalizedVal); //returns 19.226, 11.789           
             }
  
  
