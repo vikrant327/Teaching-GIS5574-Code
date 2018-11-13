@@ -26,17 +26,18 @@
       require(["dojo/ready","esri/urlUtils","esri/arcgis/utils","esri/dijit/editing/Editor","esri/config","esri/tasks/GeometryService","esri/map", "esri/layers/ArcGISTiledMapServiceLayer","esri/layers/ArcGISDynamicMapServiceLayer","esri/geometry","dojo/parser",
       "esri/geometry/webMercatorUtils","dijit/layout/BorderContainer", "dijit/layout/ContentPane",
       "dijit/layout/TabContainer", "dojo/domReady!","esri/IdentityManager"],
-          function(ready,urlUtils,arcgisUtils,Editor,config,GeometryService,Map,Tiled, Dynamic,Geometry,parser,webMercatorUtils) {
+          function(ready,urlUtils,arcgisUtils,Editor,esriConfig,GeometryService,Map,Tiled, Dynamic,Geometry,parser,webMercatorUtils) {
 
            ready(function(){
            
     		parser.parse();
+			esriConfig.defaults.io.proxyUrl = "https://developers.arcgis.com/javascript/3/samples/proxy.ashx";
 			
-			esriConfig.defaults.io.useCors =  true;  //Default = true
-		    esriConfig.defaults.io.corsDetection = true;   // enable CROS-ORIGIN Sharing
+			//esriConfig.defaults.io.useCors =  true;  //Default = true
+		    //esriConfig.defaults.io.corsDetection = true;   // enable CROS-ORIGIN Sharing
             
 
-            var webmap = "ef9c7fbda731474d98647bebb4b33c20";
+            var webmap = "4abe6a830b8f466dacf8abfde567a781";
             
             //create the map
             arcgisUtils.createMap(webmap, "map", {

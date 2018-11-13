@@ -29,21 +29,21 @@
 	  var legend,scalebar;
 	  var mapClickEvent;
 	  var selectedFeature;
-	  var printUrl = "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task";   // define your print url
+	  var printUrl = "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task";   // define your print url
       var printTask = null;
 
-      require(["dojo/_base/event","dojo/dom","dojo/dom-attr","dojo/on","esri/toolbars/draw","esri/map","esri/layers/ArcGISTiledMapServiceLayer",
+      require(["dojo/_base/event","dojo/dom","dojo/dom-attr","dojo/on","esri/config","esri/toolbars/draw","esri/map","esri/layers/ArcGISTiledMapServiceLayer",
 	          "esri/layers/ArcGISDynamicMapServiceLayer","esri/geometry","dojo/parser",
               "esri/geometry/webMercatorUtils","esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol",
               "esri/symbols/SimpleFillSymbol","esri/graphic", "dojo/_base/Color","esri/dijit/Legend","esri/dijit/Scalebar","dijit/popup","esri/tasks/IdentifyTask","esri/tasks/IdentifyParameters",
 			  "esri/InfoTemplate","esri/dijit/Measurement","esri/tasks/GeometryService","esri/tasks/BufferParameters","esri/tasks/query", "esri/tasks/QueryTask","esri/tasks/PrintTask","dojo/_base/connect","dojo/_base/event","dijit/layout/BorderContainer",
 			  "dijit/layout/ContentPane","dijit/layout/TabContainer","dojo/domReady!","esri/IdentityManager"],
-	          function(event,dom,domAttr,on,Draw,Map,Tiled,Dynamic,Geometry, parser, webMercatorUtils,SimpleMarkerSymbol,SimpleLineSymbol,SimpleFillSymbol,Graphic,Color
+	          function(event,dom,domAttr,on,esriConfig,Draw,Map,Tiled,Dynamic,Geometry, parser, webMercatorUtils,SimpleMarkerSymbol,SimpleLineSymbol,SimpleFillSymbol,Graphic,Color
 				  ,Legend,Scalebar,Popup,IdentifyTask,IdentifyParameters,InfoTemplate,Measurement,GeometryService, BufferParameters,Query, QueryTask,PrintTask,connect,event) {
 
 				parser.parse();
 				
-				esriConfig.defaults.io.proxyUrl = "https:/dev.wsbinfolink.wsbeng.com/proxy/proxy.ashx";
+				esriConfig.defaults.io.proxyUrl = "https://developers.arcgis.com/javascript/3/samples/proxy.ashx";
 				
 	            var initialExtent = new Geometry.Extent({"xmin":-9817645.961319644,"ymin":5122788.676561926,"xmax":-9808263.31609765,"ymax":5130556.589561395,"spatialReference":{"wkid":102100}});
 
@@ -57,7 +57,7 @@
 				
 				printTask = new PrintTask(printUrl) // initilize print task
 
-				var basemap = new Tiled("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",{id:"Basemap"});     // initializing the basemap with topographic tiled map
+				var basemap = new Tiled("https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",{id:"Basemap"});     // initializing the basemap with topographic tiled map
 
 				dynamicLayer = new Dynamic(dynamicLayerUrl,{id:"OverlayMap"});   // initilizing the dynamic map with dynamicLayerUrl Map Service
 
