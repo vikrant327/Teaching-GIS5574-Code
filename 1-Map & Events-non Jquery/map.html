@@ -33,17 +33,17 @@
             var initialExtent = new Geometry.Extent({"xmin":-9817645.961319644,"ymin":5122788.676561926,"xmax":-9808263.31609765,"ymax":5130556.589561395,"spatialReference":{"wkid":102100}});
 
 
-            map = new esri.Map("map", {extent: initialExtent});
+            map = new esri.Map("map", {basemap:"topo",extent: initialExtent});
 
             //map = new esri.Map("map", {basemap: "streets",center: [-88.147219, 41.780608],zoom: 16});
 
-            var basemap = new Tiled("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",{id:"Basemap"});     // initializing the basemap with topographic tiled map
+            //var basemap = new Tiled("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",{id:"Basemap"});     // initializing the basemap with topographic tiled map
 
             dynamicLayer = new Dynamic(dynamicLayerUrl,{id:"OverlayMap"});   // initilizing the dynamic map with dynamicLayerUrl Map Service
 
             dynamicLayer.setVisibleLayers([-1]);   // don't want any layer to be visible in the begining
 
-            map.addLayer(basemap);    // adding basemap layer to the map area
+            //map.addLayer(basemap);    // adding basemap layer to the map area
 
             map.addLayer(dynamicLayer);   // adding dynamic layer to map area
 
