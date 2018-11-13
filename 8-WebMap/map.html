@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=7, IE=9, IE=10">
+    <!--The viewport meta tag is used to improve the presentation and behavior of the samples
+      on iOS devices-->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title></title>
+
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="http://js.arcgis.com/3.14/esri/css/esri.css">
+
+    <link rel="stylesheet" href="css/layout.css"/>
+
+	<!-- Reference ArcGIS JavaScript API CDN -->
+    <script src="http://js.arcgis.com/3.14/"></script>
+
+   	
+    <script>
+
+      var map;
+      var dynamicLayer;
+      var dynamicLayerUrl = "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer/";
+
+      require(["dojo/ready","esri/urlUtils","esri/arcgis/utils","esri/dijit/editing/Editor","esri/config","esri/tasks/GeometryService","esri/map", "esri/layers/ArcGISTiledMapServiceLayer","esri/layers/ArcGISDynamicMapServiceLayer","esri/geometry","dojo/parser",
+      "esri/geometry/webMercatorUtils","dijit/layout/BorderContainer", "dijit/layout/ContentPane",
+      "dijit/layout/TabContainer", "dojo/domReady!","esri/IdentityManager"],
+          function(ready,urlUtils,arcgisUtils,Editor,config,GeometryService,Map,Tiled, Dynamic,Geometry,parser,webMercatorUtils) {
+
+           ready(function(){
+           
+    		parser.parse();
+			
+			esriConfig.defaults.io.useCors =  true;  //Default = true
+		    esriConfig.defaults.io.corsDetection = true;   // enable CROS-ORIGIN Sharing
+            
+
+            var webmap = "ef9c7fbda731474d98647bebb4b33c20";
+            
+            //create the map
+            arcgisUtils.createMap(webmap, "map", {
+              mapOptions: {
+                sliderStyle: "large"
+              },
+              ignorePopups: true
+
+            }).then(function(response){
+
+                var map = response.map;
+
+
+                //create the editor widget
+                var layerInfo = [];
+
+                var layers = response.itemInfo.itemData.operationalLayers;
+                array.forEach(layers, function (layer){
+                  layerInfo.push({
+                    "featureLayer": layer.layerObject
+                  });
+                });
+
+
+
+                var settings = {
+                  map: map,
+                  layerInfos: layerInfo
+                };
+
+
+                var editorWidget = new Editor({
+                  settings: settings
+                },"editorDiv");
+                editorWidget.startup();
+
+
+
+            });
+
+           });
+          }
+       );
+
+
+
+
+    </script>
+  </head>
+
+  <body class="claro">
+    <div id="mainWindow"
+         data-dojo-type="dijit.layout.BorderContainer"
+         data-dojo-props="design:'headline', gutters:false"
+         style="width:100%; height:100%;">
+
+      <div id="header" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'top'">
+
+        Web Develoment & Interactive Cartography
+       <div id="subheader">ESRI ArcGIS for JavaScript API</div>
+
+      </div>
+      <div data-dojo-type="dijit.layout.ContentPane" id="leftPane" data-dojo-props="region:'left'">
+         <div id="editorDiv"></div>
+      </div>
+
+      <div id="map" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'center'">
+          <label id="cursorLocation"> </label>
+      </div>
+
+      <div id="footer" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'bottom'">
+        Chris Cantey & Vikrant Krishna <a href="http://www.wsbeng.com" >(WSB & Associates) </a>
+      </div>
+
+    </div>
+  </body>
+
+</html>

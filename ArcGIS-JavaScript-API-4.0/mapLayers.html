@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Intro to layers - 4.9</title>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.9/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.9/"></script>
+
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+	
+	#menu {
+      padding: 1em;
+	  left:300px;
+      text-align: center;
+	  
+    }
+    button {
+      display: block;
+      margin: 0 auto;
+      margin-top: 1em;
+    }
+
+  </style>
+
+  <script>
+      require([
+      "esri/Map",
+      "esri/views/SceneView",	  
+      "esri/layers/MapImageLayer",
+	  "esri/layers/FeatureLayer",
+      "esri/widgets/LayerList",
+	  "esri/renderers/SimpleRenderer",
+	  "esri/symbols/LineSymbol3D",
+	  "esri/symbols/PathSymbol3DLayer",
+      ], function(Map, SceneView,MapImageLayer, FeatureLayer, LayerList,SimpleRenderer,LineSymbol3D,PathSymbol3DLayer) {
+	  
+	    var mapLayer1 = new MapImageLayer({
+				url: "https://dev.gis.wsbeng.com/arcgis/rest/services/WSB/ESRI_Marketplace_Dynamic/MapServer/",
+				title: "Map Layers",
+				visible:false
+			  });
+			  
+		/*var mapLayer2 = new FeatureLayer({
+			url: "https://dev.gis.wsbeng.com/arcgis/rest/services/WSB/ESRI_Marketplace_Dynamic/MapServer/22",
+			
+			visible:false,
+			blendMode:"overlay",
+			id:"Underground Water Mains",
+			elevationInfo: {
+			  mode: "relative-to-ground",
+			  offset:-50
+			}
+		});
+		
+		var layerRenderer = new SimpleRenderer({
+				  symbol: new LineSymbol3D({
+					symbolLayers: [new PathSymbol3DLayer({
+					  material: { color: [0,0,255] }
+					})]
+				  }),
+				  visualVariables: [{
+					type: "sizeInfo",
+					field: "DIAMETER",
+					valueUnit: "decimeters"  //converts and extrudes all data values in inches
+				  }]
+			});
+		mapLayer2.renderer = layerRenderer;*/
+	  
+	
+	    var initialExtent = {xmin:-9817645.961319644,ymin:5122788.676561926,xmax:-9808263.31609765,ymax:5130556.589561395,spatialReference:{wkid:3857}};
+
+        var map = new Map({
+            basemap: "topo",
+            layers: [mapLayer1]			
+        });
+
+        var view = new SceneView({
+			container: "viewDiv",
+			viewingMode:"local",
+			ground:'world-elevation',
+			extent:initialExtent,
+			clippingArea: initialExtent,
+			map: map,
+        });
+		
+		view.when(function() {
+		    var layerList = new LayerList({
+			      view: view,
+			});
+			
+			// Add widget to the top right corner of the view
+            view.ui.add(layerList, "top-right");
+			
+			/*document.getElementById("undergroundBtn").addEventListener("click", function() {
+				// slide 1 of the webscene presentation has a viewpoint that is underground
+				view.goTo(map.presentation.slides.getItemAt(1).viewpoint, {duration: 1000});
+			});
+
+             document.getElementById("opacityInput").addEventListener("change", function(event) {
+              map.ground.opacity = event.target.checked ? 0.4 : 1;
+             });
+			
+		     view.ui.add("menu", "bottom-right");*/
+		});
+		
+		
+		
+
+    });
+    
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+   <div id="menu" class="esri-widget">
+    <input type="checkbox" id="opacityInput" >
+    <label for="opacityInput">See through ground</label>
+    <button id="undergroundBtn">Go underground</button>
+  </div>
+</body>
+
+</html>
